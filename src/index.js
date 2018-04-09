@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import './index.css';
 import App from './App';
 import registerServiceWorker from './registerServiceWorker';
+import Todo from './Todo'
 
 function createGuid()
 {
@@ -76,22 +77,16 @@ const TodoForm = ({addItem}) => {
     );
   };
   
-  const Todo = ({todo, moveToBought}) => {
-    // Each Todo
-    //return (<a href="#" className="list-group-item" onClick={() => {remove(todo.id)}}>{todo.text}</a>);
-    return (<a href="#" className="list-group-item" onClick={() => {moveToBought(todo)}}>{todo.name + ',' + todo.quantity + ',' + todo.unit}</a>);
-  }
-
   const BoughtItem = ({bought, remove}) => {
     // Each Todo
     //return (<a href="#" className="list-group-item" onClick={() => {remove(todo.id)}}>{todo.text}</a>);
     return (<a href="#" className="list-group-item" onClick={() => {remove(bought.id)}}>{bought.name + ',' + bought.quantity + ',' + bought.unit}</a>);
   }
   
-  const TodoList = ({todos, moveToBought}) => {
+  const TodoList = ({todos, moveToBought, edit}) => {
     // Map through the todos
     const todoNode = todos.map((todo) => {
-      return (<Todo todo={todo} key={todo.name} moveToBought={moveToBought}/>)
+      return (<Todo todo={todo} key={todo.name} moveToBought={moveToBought} handleChange={edit}/>)
     });
     return (<div className="list-group" style={{marginTop:'30px'}}>{todoNode}</div>);
   }
@@ -113,7 +108,8 @@ const TodoForm = ({addItem}) => {
       // Set initial state
       this.state = {
         data: [],
-        dataBought: []
+        dataBought: [],
+        editing: false
       }
     }
     // Lifecycle method
@@ -149,6 +145,18 @@ const TodoForm = ({addItem}) => {
       this.state.dataBought.push(todo)
       this.setState({dataBough: this.state.dataBought})
     }
+
+    handleEdit(todo) {
+      var i = 0
+      let todo2
+      for(todo2 in this.state.data) {
+        if (todo2.id === todo.id) {
+          this.state.data[i] = todo
+          return
+        }
+        i++
+      }
+    }
    
     render(){
       // Render JSX
@@ -160,6 +168,7 @@ const TodoForm = ({addItem}) => {
           <TodoList 
             todos={this.state.data} 
             moveToBought={this.handleMoveToBought.bind(this)}
+            edit={this.handleEdit.bind(this)}
           />
           <SubTitleBought boughtCount={this.state.dataBought.length}/>
           <BoughtList
