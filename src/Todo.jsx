@@ -7,7 +7,7 @@ export default class Todo extends React.Component {
         this.state = {
             editing: false,
             todo: {
-                id: this.props.todo.id,
+                _id: this.props.todo._id,
                 name: this.props.todo.name,
                 quantity: this.props.todo.quantity,
                 unit: this.props.todo.unit
@@ -51,16 +51,17 @@ export default class Todo extends React.Component {
     // Return JSX
             return (
             <form onSubmit={(e) => {
+                e.preventDefault();
                 var shoppingItem = {
-                                id: this.state.todo.id,
+                                _id: this.state.todo._id,
                                 name: this.state.todo.name,
                                 quantity: this.state.todo.quantity,
-                                unit: this.state.todo.unit}
-                this.handleEdit(shoppingItem)
+                                unit: this.state.todo.unit};
+                this.handleEdit(shoppingItem);
                     }}>
                 <input value={this.state.todo.name} onChange={this.handleChangeName}/>
                 <input type="number" value={this.state.todo.quantity} onChange={this.handleChangeQuantity} />
-                <select class="form-control-inline" id="sel1" value={this.state.todo.unit} onChange={this.handleChangeUnit}>
+                <select className="form-control-inline" id="sel1" value={this.state.todo.unit} onChange={this.handleChangeUnit}>
                     <option value="grams">grams</option>
                     <option value="kilograms">kilograms</option>
                     <option value="pounds">pounds</option>
@@ -73,7 +74,7 @@ export default class Todo extends React.Component {
         else {
             return (
                 <div>
-                <a href="#" className="list-group-item" onClick={() => {this.props.moveToBought(this.state.todo)}}>{this.state.todo.name + ',' + this.state.todo.quantity + ',' + this.state.todo.unit}</a>
+                <button className="list-group-item" onClick={() => {this.props.moveToBought(this.state.todo)}}>{this.state.todo.name + ',' + this.state.todo.quantity + ',' + this.state.todo.unit}</button>
                 <button onClick={this.handleEditOnClick}>Modify</button>
                 </div>
             );

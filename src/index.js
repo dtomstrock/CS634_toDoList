@@ -5,14 +5,6 @@ import App from './App';
 import registerServiceWorker from './registerServiceWorker';
 import Todo from './Todo'
 
-function createGuid()
-{
-    return 'xxxxxxxx-xxxx-4xxx-yxxx-xxxxxxxxxxxx'.replace(/[xy]/g, function(c) {
-        var r = Math.random()*16|0, v = c === 'x' ? r : (r&0x3|0x8);
-        return v.toString(16);
-    });
-}
-
 const Title = () => {
       return (<div>
          <div>
@@ -63,7 +55,7 @@ const TodoForm = ({addItem}) => {
         <input type="number" ref={node => {
           inputNumber = node;
         }} />
-        <select class="form-control-inline" id="sel1" ref={node => {
+        <select className="form-control-inline" id="sel1" ref={node => {
           inputUnit = node;
             }}>
             <option>grams</option>
@@ -80,20 +72,20 @@ const TodoForm = ({addItem}) => {
   const BoughtItem = ({bought, remove}) => {
     // Each Todo
     //return (<a href="#" className="list-group-item" onClick={() => {remove(todo.id)}}>{todo.text}</a>);
-    return (<a href="#" className="list-group-item" onClick={() => {remove(bought.id)}}>{bought.name + ',' + bought.quantity + ',' + bought.unit}</a>);
+    return (<button className="list-group-item" onClick={() => {remove(bought._id)}}>{bought.name + ',' + bought.quantity + ',' + bought.unit}</button>);
   }
   
   const TodoList = ({todos, moveToBought, edit}) => {
     // Map through the todos
     const todoNode = todos.map((todo) => {
-      return (<Todo todo={todo} key={todo.name} moveToBought={moveToBought} handleChange={edit}/>)
+      return (<Todo todo={todo} key={todo._id} moveToBought={moveToBought} handleChange={edit}/>)
     });
     return (<div className="list-group" style={{marginTop:'30px'}}>{todoNode}</div>);
   }
 
   const BoughtList = ({boughtItems, remove}) => {
       const boughtNode = boughtItems.map((bought) => {
-        return (<BoughtItem bought={bought} key={bought.name} remove={remove}/>)
+        return (<BoughtItem bought={bought} key={bought._id} remove={remove}/>)
       });
       return (<div className="list-group" style={{marginTop:'30px'}}>{boughtNode}</div>);
   }
@@ -115,47 +107,137 @@ const TodoForm = ({addItem}) => {
     // Lifecycle method
     componentDidMount(){
       // Make HTTP reques with Axios
+      fetch('http://155.41.13.190:3000/AllItems/', {
+        mode: 'cors',
+        method: 'GET',
+        headers: {
+          'content-type': 'application/json',
+          'Access-Control-Allow-Origin':'*'
+        }
+      })
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(myJson) {
+          this.setState({data: myJson})
+        }.bind(this));
+      fetch('http://155.41.13.190:3000/AllBoughtItems/', {
+        mode: 'cors',
+        method: 'GET',
+        headers: {
+          'content-type': 'application/json',
+          'Access-Control-Allow-Origin':'*'
+        }
+      })
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(myJson) {
+          this.setState({dataBought: myJson})
+        }.bind(this));
     }
     // Add todo handler
     addItem(val){
       // Assemble data
       if (val.name != "" && val.quantity != "" && val.unit != "") {
-        const todo = {text: val}
-        val.id = createGuid();
-        // Update data
-        this.state.data.push(val)
-        this.setState({data: this.state.data})
+        //const todo = {text: val}
+        fetch("http://155.41.13.190:3000/createItem/", {
+          mode: 'cors',
+          method: 'POST',
+          body: JSON.stringify(val),
+          headers: {
+            'content-type': 'application/json',
+            'Access-Control-Allow-Origin':'*'
+          }
+        })
+        .then(function(response) {
+          return response.json();
+        })
+        .then(function(myJson) {
+          this.state.data.push(myJson);
+          this.setState({data: this.state.data})
+        }.bind(this));
+        // val.id = createGuid();
+        // // Update data
+        // this.state.data.push(val)
+        // this.setState({data: this.state.data})
+        
       }
     }
     // Handle remove
     handleRemove(id){
       // Filter all todos except the one to be removed
       const remainder = this.state.dataBought.filter((boughtItem) => {
-        if (boughtItem.id !== id) return boughtItem;
+        if (boughtItem._id !== id) return boughtItem;
       });
       // Update state with filter
-      this.setState({dataBought: remainder});
+      fetch("http://155.41.13.190:3000/item/" + id + "/", {
+        mode: 'cors',
+        method: 'DELETE',
+        headers: {
+          'content-type': 'application/json',
+          'Access-Control-Allow-Origin':'*'
+        }
+      })
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(myJson) {
+        this.setState({dataBought: remainder});
+      }.bind(this));
     }
 
     handleMoveToBought(todo) {
       const remainder = this.state.data.filter((todo2) => {
-          if (todo2.id !== todo.id) return todo;
+          if (todo2._id !== todo._id) return todo;
       });
-      this.setState({data: remainder});
-      this.state.dataBought.push(todo)
-      this.setState({dataBough: this.state.dataBought})
+      var bought = {
+        name: todo.name,
+        quantity: todo.quantity,
+        unit: todo.unit
+      };
+      fetch("http://155.41.13.190:3000/bought/" + todo._id + "/", {
+        mode: 'cors',
+        method: 'POST',
+        body: JSON.stringify(bought),
+        headers: {
+          'content-type': 'application/json',
+          'Access-Control-Allow-Origin':'*'
+        }
+      })
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(myJson) {
+        this.state.dataBought.push(myJson);
+        this.setState({data: remainder, dataBought: this.state.dataBought});
+      }.bind(this));
     }
 
     handleEdit(todo) {
-      var i = 0
-      let todo2
-      for(todo2 in this.state.data) {
-        if (todo2.id === todo.id) {
-          this.state.data[i] = todo
-          return
+      fetch("http://155.41.13.190:3000/item/" + todo._id + "/", {
+        mode: 'cors',
+        method: 'PUT',
+        body: JSON.stringify(todo),
+        headers: {
+          'content-type': 'application/json',
+          'Access-Control-Allow-Origin':'*'
         }
-        i++
-      }
+      })
+      .then(function(response) {
+        return response.json();
+      })
+      .then(function(myJson) {
+        var i = 0
+        let todo2
+        for(todo2 in this.state.data) {
+          if (todo2.id === todo.id) {
+            this.state.data[i] = myJson;
+            return
+          }
+          i++
+        }
+      }.bind(this));
     }
    
     render(){
