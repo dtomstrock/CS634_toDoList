@@ -8,7 +8,7 @@ import Todo from './Todo'
 const Title = () => {
       return (<div>
          <div>
-            <h1>Shopping List</h1>
+            <h3>Shopping List</h3>
          </div>
       </div>)
 };
@@ -17,7 +17,7 @@ const SubTitleToBuy = ({toBuyCount}) => {
     return (
       <div>
          <div>
-            <h2>To buy ({toBuyCount})</h2>
+            <h4>To buy ({toBuyCount})</h4>
          </div>
       </div>
     );
@@ -27,7 +27,7 @@ const SubTitleBought = ({boughtCount}) => {
     return (
       <div>
          <div>
-            <h2>Bought ({boughtCount})</h2>
+            <h4>Bought ({boughtCount})</h4>
          </div>
       </div>
     );
@@ -49,10 +49,10 @@ const TodoForm = ({addItem}) => {
           input.value = '';
           inputNumber.value = '';
         }}>
-        <input ref={node => {
+        <input placeholder="Item name" ref={node => {
           input = node;
         }} />
-        <input type="number" ref={node => {
+        <input placeholder="Quantity" type="number" ref={node => {
           inputNumber = node;
         }} />
         <select className="form-control-inline" id="sel1" ref={node => {
@@ -80,14 +80,14 @@ const TodoForm = ({addItem}) => {
     const todoNode = todos.map((todo) => {
       return (<Todo todo={todo} key={todo._id} moveToBought={moveToBought} handleChange={edit}/>)
     });
-    return (<div className="list-group" style={{marginTop:'30px'}}>{todoNode}</div>);
+    return (<div className="list-group" style={{marginTop:'10px'}}>{todoNode}</div>);
   }
 
   const BoughtList = ({boughtItems, remove}) => {
       const boughtNode = boughtItems.map((bought) => {
         return (<BoughtItem bought={bought} key={bought._id} remove={remove}/>)
       });
-      return (<div className="list-group" style={{marginTop:'30px'}}>{boughtNode}</div>);
+      return (<div className="list-group" style={{marginTop:'10px'}}>{boughtNode}</div>);
   }
   
   // Container Component
@@ -107,7 +107,7 @@ const TodoForm = ({addItem}) => {
     // Lifecycle method
     componentDidMount(){
       // Make HTTP reques with Axios
-      fetch('http://155.41.13.190:3000/AllItems/', {
+      fetch('http://155.41.101.75:3000/AllItems/', {
         mode: 'cors',
         method: 'GET',
         headers: {
@@ -121,7 +121,7 @@ const TodoForm = ({addItem}) => {
         .then(function(myJson) {
           this.setState({data: myJson})
         }.bind(this));
-      fetch('http://155.41.13.190:3000/AllBoughtItems/', {
+      fetch('http://155.41.101.75:3000/AllBoughtItems/', {
         mode: 'cors',
         method: 'GET',
         headers: {
@@ -141,7 +141,7 @@ const TodoForm = ({addItem}) => {
       // Assemble data
       if (val.name != "" && val.quantity != "" && val.unit != "") {
         //const todo = {text: val}
-        fetch("http://155.41.13.190:3000/createItem/", {
+        fetch("http://155.41.101.75:3000/createItem/", {
           mode: 'cors',
           method: 'POST',
           body: JSON.stringify(val),
@@ -171,7 +171,7 @@ const TodoForm = ({addItem}) => {
         if (boughtItem._id !== id) return boughtItem;
       });
       // Update state with filter
-      fetch("http://155.41.13.190:3000/item/" + id + "/", {
+      fetch("http://155.41.101.75:3000/item/" + id + "/", {
         mode: 'cors',
         method: 'DELETE',
         headers: {
@@ -196,7 +196,7 @@ const TodoForm = ({addItem}) => {
         quantity: todo.quantity,
         unit: todo.unit
       };
-      fetch("http://155.41.13.190:3000/bought/" + todo._id + "/", {
+      fetch("http://155.41.101.75:3000/bought/" + todo._id + "/", {
         mode: 'cors',
         method: 'POST',
         body: JSON.stringify(bought),
@@ -215,7 +215,7 @@ const TodoForm = ({addItem}) => {
     }
 
     handleEdit(todo) {
-      fetch("http://155.41.13.190:3000/item/" + todo._id + "/", {
+      fetch("http://155.41.101.75:3000/item/" + todo._id + "/", {
         mode: 'cors',
         method: 'PUT',
         body: JSON.stringify(todo),

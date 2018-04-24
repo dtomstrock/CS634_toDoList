@@ -74,7 +74,7 @@ export default class Todo extends React.Component {
         else {
             return (
                 <div>
-                <button className="list-group-item" onClick={() => {this.props.moveToBought(this.state.todo)}}>{this.state.todo.name + ',' + this.state.todo.quantity + ',' + this.state.todo.unit}</button>
+                <button className="list-group-item" style={{marginBottom:'5px'}} onClick={() => {this.props.moveToBought(this.state.todo)}}>{this.state.todo.name + ',' + this.state.todo.quantity + ',' + this.state.todo.unit}</button>
                 <button onClick={this.handleEditOnClick}>Modify</button>
                 </div>
             );
